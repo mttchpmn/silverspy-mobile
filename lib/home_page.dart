@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'transactions_page.dart';
-// import 'payments_page.dart';
+import 'payments_page.dart';
 // import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     TransactionListPage(),
-    // PaymentsPage(),
+    PaymentsPage(),
     // SettingsPage(),
   ];
 
