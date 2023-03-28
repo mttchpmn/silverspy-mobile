@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'dashboard_page.dart';
 import 'transactions_page.dart';
 import 'payments_page.dart';
 import 'settings_page.dart';
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
+    DashboardPage(),
     TransactionListPage(),
     PaymentsPage(),
     SettingsPage(),
@@ -31,13 +33,19 @@ class _HomePageState extends State<HomePage> {
             _currentIndex = index;
           });
         },
+        unselectedItemColor: Colors.black54,
+        selectedItemColor: Colors.deepPurple,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: "Transactions",
+            icon: Icon(Icons.dashboard),
+            label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.payment),
+            label: "Transactions",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.money),
             label: "Payments",
           ),
           BottomNavigationBarItem(
