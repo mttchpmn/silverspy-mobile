@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'transactions_page.dart';
 import 'payments_page.dart';
-// import 'settings_page.dart';
+import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,15 +17,12 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     TransactionListPage(),
     PaymentsPage(),
-    // SettingsPage(),
+    SettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text("Silverspy"),
-      // ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
