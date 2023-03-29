@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Transaction {
-  final String name;
-  final String date;
-  final double amount;
-
-  Transaction({required this.name, required this.date, required this.amount});
-}
+import '../models/transaction_model.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({Key? key}) : super(key: key);
