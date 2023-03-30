@@ -49,7 +49,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
           return ListTile(
             title: Text(payment.description),
             subtitle: Text(payment.date),
-            trailing: Text('\$${payment.amount}'),
+            trailing: Text('\$${payment.value}'),
           );
         },
       ),

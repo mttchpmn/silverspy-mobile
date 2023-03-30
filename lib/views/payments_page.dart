@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../services/payment_service.dart';
+
 class Payment {
   final String id;
   final String description;
   final double amount;
   final String date;
 
-  Payment({required this.id, required this.description, required this.amount, required this.date});
+  Payment(
+      {required this.id,
+      required this.description,
+      required this.amount,
+      required this.date});
 }
 
 class PaymentsPage extends StatefulWidget {
@@ -20,7 +26,8 @@ class _PaymentsPageState extends State<PaymentsPage> {
   final List<Payment> _payments = [
     Payment(id: '1', description: 'Rent', amount: 1000.0, date: '2022-03-01'),
     Payment(id: '2', description: 'Internet', amount: 50.0, date: '2022-03-03'),
-    Payment(id: '3', description: 'Electricity', amount: 80.0, date: '2022-03-05'),
+    Payment(
+        id: '3', description: 'Electricity', amount: 80.0, date: '2022-03-05'),
     Payment(id: '4', description: 'Water', amount: 30.0, date: '2022-03-07'),
   ];
 
@@ -28,6 +35,17 @@ class _PaymentsPageState extends State<PaymentsPage> {
     setState(() {
       _payments[index] = payment;
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    var paymentResponse = PaymentsService().getPayments();
+
+    debugPrint("Hello!");
+    debugPrint(paymentResponse.toString());
   }
 
   @override
@@ -55,11 +73,11 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
   void _showPaymentDialog({required Payment payment, required int index}) {
     final TextEditingController descriptionController =
-    TextEditingController(text: payment.description);
+        TextEditingController(text: payment.description);
     final TextEditingController amountController =
-    TextEditingController(text: payment.amount.toString());
+        TextEditingController(text: payment.amount.toString());
     final TextEditingController dateController =
-    TextEditingController(text: payment.date);
+        TextEditingController(text: payment.date);
 
     showDialog(
       context: context,

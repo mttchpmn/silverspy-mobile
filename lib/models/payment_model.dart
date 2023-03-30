@@ -1,11 +1,11 @@
 class Payment {
-  final String id;
+  final int id;
   final String name;
-  final DateTime referenceDate;
+  final String referenceDate;
   final PaymentType type;
   final PaymentFrequency frequency;
   final String category;
-  final double amount;
+  final double value;
   final String? details;
 
   Payment({
@@ -15,7 +15,7 @@ class Payment {
     required this.type,
     required this.frequency,
     required this.category,
-    required this.amount,
+    required this.value,
     this.details,
   });
 
@@ -24,10 +24,10 @@ class Payment {
       id: json['id'],
       name: json['name'],
       referenceDate: json['referenceDate'],
-      type: json['type'],
-      frequency: json['frequency'],
+      type: PaymentType.values.byName(json['type'].toLowerCase()),
+      frequency: PaymentFrequency.values.byName(json['frequency'].toLowerCase()),
       category: json['category'],
-      amount: json['amount'],
+      value: json['value'],
       details: json['details'],
     );
   }

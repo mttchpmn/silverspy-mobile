@@ -11,10 +11,10 @@ class TransactionListPage extends StatefulWidget {
 
 class _TransactionListPageState extends State<TransactionListPage> {
   final List<Transaction> _transactions = [
-    Transaction(name: "Groceries", date: "2022-03-15", amount: 100.00),
-    Transaction(name: "Gas", date: "2022-03-10", amount: 40.00),
-    Transaction(name: "Phone bill", date: "2022-03-01", amount: 80.00),
-    Transaction(name: "Internet bill", date: "2022-02-25", amount: 60.00),
+    Transaction(id: "1", description: "Groceries", date: "2022-03-15", amount: 100.00),
+    Transaction(id: "2", description: "Gas", date: "2022-03-10", amount: 40.00),
+    Transaction(id: "3", description: "Phone bill", date: "2022-03-01", amount: 80.00),
+    Transaction(id: "4", description: "Internet bill", date: "2022-02-25", amount: 60.00),
   ];
 
   @override
@@ -28,7 +28,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
         itemBuilder: (context, index) {
           final transaction = _transactions[index];
           return ListTile(
-            title: Text(transaction.name),
+            title: Text(transaction.description),
             subtitle: Text(transaction.date),
             trailing: Text("\$${transaction.amount.toStringAsFixed(2)}"),
           );

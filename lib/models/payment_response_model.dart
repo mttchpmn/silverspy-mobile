@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'payment_model.dart';
 
 class PaymentResponse {
@@ -15,14 +17,18 @@ class PaymentResponse {
       required this.categoryTotals});
 
   factory PaymentResponse.fromJson(Map<String, dynamic> json) {
-    var payments = json['payments'].map((p) => Payment.fromJson(p)).toList();
+    List<Payment> payments =
+        json['payments'].map<Payment>((x) => Payment.fromJson(x)).toList();
+
+    var categoryTotals = json['categoryTotals'].map<PaymentCategoryTotal>((x) => PaymentCategoryTotal.fromJson(x)).toList();
 
     return PaymentResponse(
         payments: payments,
-        monthlyIncoming: json['monthlyIncoming'],
-        monthlyOutgoing: json['monthlyOutgoing'],
-        monthlyNet: json['monthlyNet'],
-        categoryTotals: json['categoryTotals']);
+        monthlyIncoming: PaymentTypeSummary.fromJson(json['monthlyIncoming']),
+        monthlyOutgoing: PaymentTypeSummary.fromJson(json['monthlyOutgoing']),
+        monthlyNet: PaymentTypeSummary.fromJson(json['monthlyNet']),
+        categoryTotals: categoryTotals
+    );
   }
 }
 
@@ -31,6 +37,10 @@ class PaymentTypeSummary {
   final double total;
 
   PaymentTypeSummary({required this.count, required this.total});
+
+  factory PaymentTypeSummary.fromJson(Map<String, dynamic> json) {
+    return PaymentTypeSummary(count: json['count'], total: json['total']);
+  }
 }
 
 class PaymentCategoryTotal {
@@ -38,4 +48,9 @@ class PaymentCategoryTotal {
   final double total;
 
   PaymentCategoryTotal({required this.category, required this.total});
+
+  factory PaymentCategoryTotal.fromJson(Map<String, dynamic> json) {
+    return PaymentCategoryTotal(
+        category: json['category'], total: json['total']);
+  }
 }
