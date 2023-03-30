@@ -51,6 +51,6 @@ class PaymentCategoryTotal {
 
   factory PaymentCategoryTotal.fromJson(Map<String, dynamic> json) {
     return PaymentCategoryTotal(
-        category: json['category'], total: json['total']);
+        category: json['category'], total: json['total'] ?? 0);
   }
 }

@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:silverspy/models/payment_model.dart';
 
+import '../models/payment_input_model.dart';
+import '../forms/add_payment_form.dart';
 import '../models/payment_response_model.dart';
 import '../services/payment_service.dart';
-
-class Payment {
-  final String id;
-  final String description;
-  final double amount;
-  final String date;
-
-  Payment({required this.id,
-    required this.description,
-    required this.amount,
-    required this.date});
-}
 
 class PaymentsPage extends StatefulWidget {
   const PaymentsPage({Key? key}) : super(key: key);
@@ -24,142 +15,144 @@ class PaymentsPage extends StatefulWidget {
 
 class _PaymentsPageState extends State<PaymentsPage> {
   late Future<PaymentData> paymentData;
+  final PaymentsService _paymentsService = PaymentsService();
 
-  void _editPayment(int index, Payment payment) {
-    // setState(() {
-    //   _payments[index] = payment;
-    // });
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+
+    paymentData = _paymentsService.getPaymentData();
   }
 
   @override
   void initState() {
     super.initState();
 
-    paymentData = PaymentsService().getPaymentData();
+    paymentData = _paymentsService.getPaymentData();
+  }
+
+  void _handleAddPayment(PaymentInput payment) {
+    debugPrint("Received payment");
+    debugPrint(payment.toString());
+
+    _paymentsService.addPayment(payment);
+    setState(() {
+      paymentData = _paymentsService.getPaymentData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Payments'),
-      ),
-      body: FutureBuilder<PaymentData>(
-        future: paymentData,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var data = snapshot.data!;
+        appBar: AppBar(
+          title: Text('Payments'),
+        ),
+        body: FutureBuilder<PaymentData>(
+            future: paymentData,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var data = snapshot.data!;
 
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                return Column(
                   children: [
-                  Text('Total Monthly Incoming'),
-                  Text('\$${data.monthlyIncoming.total}'),
-                ],),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  Text('Total Monthly Outgoing'),
-                  Text('\$${data.monthlyOutgoing.total}'),
-                ],),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  Text('Net Monthly Position'),
-                  Text('\$${data.monthlyNet.total}'),
-                ],),
-                Text('All Payments'),
-                Expanded(
-                  child: ListView.builder(
-                        itemCount: data.payments.length,
-                        itemBuilder: (context, index) {
-                          final payment = data.payments[index];
-                          return ListTile(
-                            title: Text(payment.name),
-                            subtitle: Text(payment.details ?? ""),
-                            trailing: Text('\$${payment.value}'),
-                            onTap: () {
-                              // _showPaymentDialog(payment: payment, index: index);
-                            },
-                          );
+                    PaymentTypeSummaryRow(
+                      data: data.monthlyIncoming,
+                      label: 'Total Monthly Incoming',
+                    ),
+                    PaymentTypeSummaryRow(
+                      data: data.monthlyOutgoing,
+                      label: 'Total Monthly Outgoing',
+                    ),
+                    PaymentTypeSummaryRow(
+                      data: data.monthlyNet,
+                      label: 'Monthly Net Position',
+                    ),
+                    Text('All Payments'),
+                    PaymentsList(data: data),
+                    TextButton(
+                        onPressed: () {
+                          setState(() {});
                         },
-
-                  ),
-                )
-              ],
-            );
-
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-
-          return Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [Row(mainAxisAlignment: MainAxisAlignment.center, children: [CircularProgressIndicator()],)]);
-        }
-    ));
-  }
-
-  void _showPaymentDialog({required Payment payment, required int index}) {
-    final TextEditingController descriptionController =
-    TextEditingController(text: payment.description);
-    final TextEditingController amountController =
-    TextEditingController(text: payment.amount.toString());
-    final TextEditingController dateController =
-    TextEditingController(text: payment.date);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Payment'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                ),
-              ),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                ),
-              ),
-              TextField(
-                controller: dateController,
-                decoration: InputDecoration(
-                  labelText: 'Date',
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                final newPayment = Payment(
-                  id: payment.id,
-                  description: descriptionController.text,
-                  amount: double.tryParse(amountController.text) ?? 0.0,
-                  date: dateController.text,
+                        child: Text("Set state")),
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) => PaymentFormDialog(
+                                onFormSubmit: _handleAddPayment));
+                        // _addPaymentDialog();
+                      },
+                      icon: Icon(Icons.add),
+                      splashColor: Colors.deepPurple,
+                    )
+                  ],
                 );
-                _editPayment(index, newPayment);
-                Navigator.pop(context);
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+
+              return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [CircularProgressIndicator()],
+                    )
+                  ]);
+            }));
+  }
+}
+
+class PaymentsList extends StatelessWidget {
+  const PaymentsList({
+    super.key,
+    required this.data,
+  });
+
+  final PaymentData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: data.payments.length,
+        itemBuilder: (context, index) {
+          final payment = data.payments[index];
+          return ListTile(
+            title: Text(payment.name),
+            subtitle: Text(payment.details ?? ""),
+            trailing: Text('\$${payment.value}'),
+            onTap: () {},
+          );
+        },
+      ),
+    );
+  }
+}
+
+class PaymentTypeSummaryRow extends StatelessWidget {
+  const PaymentTypeSummaryRow({
+    super.key,
+    required this.data,
+    required this.label,
+  });
+
+  final String label;
+  final PaymentTypeSummary data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label),
+          Text('\$${data.total}'),
+        ],
+      ),
     );
   }
 }
