@@ -42,7 +42,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
     // TODO: implement initState
     super.initState();
 
-    var paymentResponse = PaymentsService().getPayments();
+    var paymentResponse = PaymentsService().getPaymentData();
 
     debugPrint("Hello!");
     debugPrint(paymentResponse.toString());

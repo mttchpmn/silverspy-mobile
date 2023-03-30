@@ -2,27 +2,27 @@ import 'package:flutter/foundation.dart';
 
 import 'payment_model.dart';
 
-class PaymentResponse {
+class PaymentData {
   final List<Payment> payments;
   final PaymentTypeSummary monthlyIncoming;
   final PaymentTypeSummary monthlyOutgoing;
   final PaymentTypeSummary monthlyNet;
   final List<PaymentCategoryTotal> categoryTotals;
 
-  PaymentResponse(
+  PaymentData(
       {required this.payments,
       required this.monthlyIncoming,
       required this.monthlyOutgoing,
       required this.monthlyNet,
       required this.categoryTotals});
 
-  factory PaymentResponse.fromJson(Map<String, dynamic> json) {
+  factory PaymentData.fromJson(Map<String, dynamic> json) {
     List<Payment> payments =
         json['payments'].map<Payment>((x) => Payment.fromJson(x)).toList();
 
     var categoryTotals = json['categoryTotals'].map<PaymentCategoryTotal>((x) => PaymentCategoryTotal.fromJson(x)).toList();
 
-    return PaymentResponse(
+    return PaymentData(
         payments: payments,
         monthlyIncoming: PaymentTypeSummary.fromJson(json['monthlyIncoming']),
         monthlyOutgoing: PaymentTypeSummary.fromJson(json['monthlyOutgoing']),

@@ -6,7 +6,7 @@ import '../models/payment_response_model.dart';
 class PaymentsService {
   final String apiUrl = 'http://10.0.2.2:5224/payments'; // TODO - Extract to config
 
-  Future<PaymentResponse> getPayments() async {
+  Future<PaymentData> getPaymentData() async {
     var headers = <String,String>{
       "Authorization" : ""
     };
@@ -14,7 +14,7 @@ class PaymentsService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      var paymentResponse = PaymentResponse.fromJson(data);
+      var paymentResponse = PaymentData.fromJson(data);
 
       return paymentResponse;
     } else {

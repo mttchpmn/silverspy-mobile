@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'dashboard_page.dart';
 import 'transactions_page.dart';
-import 'payments_page.dart';
+// import 'payments_page.dart';
+import 'payments_page_http.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
