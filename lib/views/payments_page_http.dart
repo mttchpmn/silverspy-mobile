@@ -70,11 +70,6 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     ),
                     Text('All Payments'),
                     PaymentsList(data: data),
-                    TextButton(
-                        onPressed: () {
-                          setState(() {});
-                        },
-                        child: Text("Set state")),
                     IconButton(
                       onPressed: () {
                         showDialog(
