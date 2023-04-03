@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:silverspy/views/login_test_page.dart';
 
 import 'dashboard_page.dart';
 import 'transactions_page.dart';
@@ -20,6 +21,7 @@ class _HomePageState extends State<HomePage> {
     DashboardPage(),
     TransactionListPage(),
     PaymentsPage(),
+    LoginPage(),
     SettingsPage(),
   ];
 
