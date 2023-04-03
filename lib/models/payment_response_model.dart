@@ -39,7 +39,7 @@ class PaymentTypeSummary {
   PaymentTypeSummary({required this.count, required this.total});
 
   factory PaymentTypeSummary.fromJson(Map<String, dynamic> json) {
-    return PaymentTypeSummary(count: json['count'], total: json['total']);
+    return PaymentTypeSummary(count: int.parse(json['count'].toString()), total: double.parse(json['total'].toString()));
   }
 }
 
@@ -51,6 +51,6 @@ class PaymentCategoryTotal {
 
   factory PaymentCategoryTotal.fromJson(Map<String, dynamic> json) {
     return PaymentCategoryTotal(
-        category: json['category'], total: json['total'] ?? 0);
+        category: json['category'], total: double.parse(json['total'].toString()));
   }
 }

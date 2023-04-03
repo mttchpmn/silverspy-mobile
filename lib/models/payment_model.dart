@@ -27,7 +27,7 @@ class Payment {
       type: PaymentType.values.byName(json['type'].toLowerCase()),
       frequency: PaymentFrequency.values.byName(json['frequency'].toLowerCase()),
       category: json['category'],
-      value: json['value'],
+      value: double.parse(json['value'].toString()),
       details: json['details'],
     );
   }
