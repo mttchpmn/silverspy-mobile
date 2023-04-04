@@ -30,15 +30,20 @@ class _PaymentsPageState extends State<PaymentsPage> {
   }
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
 
+    // paymentData = _paymentsService.getPaymentData(_accessToken);
+    paymentData = getPaymentData();
+  }
+
+  Future<PaymentData> getPaymentData() async {
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     var credentials = await _authProvider.getCredentials();
     _accessToken = credentials.accessToken;
 
-    paymentData = _paymentsService.getPaymentData(_accessToken);
+    return _paymentsService.getPaymentData(_accessToken);
   }
 
   void _handleAddPayment(PaymentInput payment) {
