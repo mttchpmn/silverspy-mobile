@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:silverspy/providers/auth_provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -28,6 +30,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -76,6 +80,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
             ),
+            ElevatedButton(
+                onPressed: () {
+                  authProvider.logout();
+                },
+                child: Text("Log out"))
           ],
         ),
       ),

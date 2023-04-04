@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:silverspy/models/payment_model.dart';
+import 'package:silverspy/providers/auth_provider.dart';
 
 import '../models/payment_input_model.dart';
 import '../forms/add_payment_form.dart';
@@ -14,6 +16,8 @@ class PaymentsPage extends StatefulWidget {
 }
 
 class _PaymentsPageState extends State<PaymentsPage> {
+  late AuthProvider _authProvider;
+  late String _accessToken;
   late Future<PaymentData> paymentData;
   final PaymentsService _paymentsService = PaymentsService();
 
@@ -22,23 +26,28 @@ class _PaymentsPageState extends State<PaymentsPage> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
 
-    paymentData = _paymentsService.getPaymentData();
+    paymentData = _paymentsService.getPaymentData(_accessToken);
   }
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
 
-    paymentData = _paymentsService.getPaymentData();
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    var credentials = await _authProvider.getCredentials();
+    _accessToken = credentials.accessToken;
+
+    paymentData = _paymentsService.getPaymentData(_accessToken);
   }
 
   void _handleAddPayment(PaymentInput payment) {
     debugPrint("Received payment");
     debugPrint(payment.toString());
 
-    _paymentsService.addPayment(payment);
+    _paymentsService.addPayment(payment, _accessToken);
     setState(() {
-      paymentData = _paymentsService.getPaymentData();
+      paymentData = _paymentsService.getPaymentData(_accessToken);
     });
   }
 
