@@ -16,34 +16,31 @@ class PaymentsPage extends StatefulWidget {
 }
 
 class _PaymentsPageState extends State<PaymentsPage> {
-  late AuthProvider _authProvider;
   late String _accessToken;
   late Future<PaymentData> paymentData;
   final PaymentsService _paymentsService = PaymentsService();
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
 
-    paymentData = _paymentsService.getPaymentData(_accessToken);
+    paymentData = getPaymentData();
   }
 
   @override
   void initState() {
     super.initState();
 
-    // paymentData = _paymentsService.getPaymentData(_accessToken);
     paymentData = getPaymentData();
   }
 
   Future<PaymentData> getPaymentData() async {
-    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    var credentials = await _authProvider.getCredentials();
-    _accessToken = credentials.accessToken;
-
-    return _paymentsService.getPaymentData(_accessToken);
+    return authProvider.getCredentials().then((value) {
+      _accessToken = value.accessToken;
+      return _paymentsService.getPaymentData(value.accessToken);
+    });
   }
 
   void _handleAddPayment(PaymentInput payment) {
@@ -52,7 +49,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
     _paymentsService.addPayment(payment, _accessToken);
     setState(() {
-      paymentData = _paymentsService.getPaymentData(_accessToken);
+      paymentData = getPaymentData();
     });
   }
 
