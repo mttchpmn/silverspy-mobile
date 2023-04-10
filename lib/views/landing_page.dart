@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:silverspy/providers/auth_provider.dart';
 import 'package:silverspy/views/login_page.dart';
+import 'package:silverspy/views/transactions_overview_page.dart';
 
 import 'dashboard_page.dart';
 import 'transactions_page.dart';
@@ -21,7 +22,8 @@ class _LandingPageState extends State<LandingPage> {
 
   final List<Widget> _pages = [
     const DashboardPage(),
-    const TransactionListPage(),
+    const TransactionsOverviewPage(),
+    // const TransactionListPage(),
     const PaymentsOverviewPage(),
     const SettingsPage(),
   ];
