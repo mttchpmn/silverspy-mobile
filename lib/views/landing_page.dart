@@ -6,7 +6,7 @@ import 'package:silverspy/views/login_page.dart';
 import 'dashboard_page.dart';
 import 'transactions_page.dart';
 // import 'payments_page.dart';
-import 'payments_page_http.dart';
+import 'payments_overview_page.dart';
 import 'settings_page.dart';
 
 class LandingPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _LandingPageState extends State<LandingPage> {
   final List<Widget> _pages = [
     const DashboardPage(),
     const TransactionListPage(),
-    const PaymentsPage(),
+    const PaymentsOverviewPage(),
     const SettingsPage(),
   ];
 
