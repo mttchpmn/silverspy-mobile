@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:silverspy/providers/auth_provider.dart';
 import 'package:silverspy/views/landing_page.dart';
 
-import 'views/home_page.dart';
-
 void main() {
   runApp(
     ChangeNotifierProvider(

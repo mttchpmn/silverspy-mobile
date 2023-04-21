@@ -1,23 +1,20 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-import '../models/transaction_model.dart';
+import 'package:silverspy/models/transaction_response_model.dart';
 
 class TransactionService {
-  final String apiUrl = 'https://example.com/api/transactions';
+  final String apiUrl = 'https://staging.api.silverspy.io/transactions';
 
-  Future<List<Transaction>> getTransactions() async {
-    final response = await http.get(Uri.parse(apiUrl));
+  Future<TransactionResponse> fetchTransactions(String accessToken) async {
+    var headers = <String, String>{"Authorization": "Bearer $accessToken"};
+    final response = await http.get(Uri.parse(apiUrl), headers: headers);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      List<Transaction> transactions = [];
+      final Map<String, dynamic> data = json.decode(response.body);
 
-      for (var i = 0; i < data.length; i++) {
-        transactions.add(Transaction.fromJson(data[i]));
-      }
+      var transactionResponse = TransactionResponse.fromJson(data);
 
-      return transactions;
+      return transactionResponse;
     } else {
       throw Exception('Failed to load transactions');
     }

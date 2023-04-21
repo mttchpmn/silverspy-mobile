@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:silverspy/components/date_range_picker.dart';
 import 'package:silverspy/views/payments_list_page.dart';
+import 'package:silverspy/views/transactions_list_page.dart';
 
 import '../services/transaction_service.dart';
 
@@ -17,6 +19,10 @@ class TransactionsOverviewPage extends StatefulWidget {
 class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   String _bankType = "ASB";
   String _period = "PAYPERIOD";
+
+  DateTime _toDate = DateTime.now();
+  DateTime _fromDate = DateTime.now();
+
   late File? _csvFile;
 
   Future<void> _importTransactions() async {
@@ -77,105 +83,106 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                DropdownButton<String>(
-                  value: _period,
-                  onChanged: (value) {
-                    setState(() {
-                      _period = value ?? "";
-                    });
-                  },
-                  items: [
-                    DropdownMenuItem(
-                      value: 'PAYPERIOD',
-                      child: Text('This Pay Period'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'WEEK',
-                      child: Text('This Week'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'MONTH',
-                      child: Text('This Month'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'YEAR',
-                      child: Text('This Year'),
-                    ),
-                  ],
-                ),
-                ElevatedButton.icon(
-                  label: Text("Import"),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Import Transactions'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Select your bank"),
-                                  DropdownButton<String>(
-                                    value: _bankType,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _bankType = value ?? "";
-                                      });
-                                    },
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: 'ASB',
-                                        child: Text('ASB'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'BNZ',
-                                        child: Text('BNZ'),
-                                        enabled: false,
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'ANZ',
-                                        child: Text('ANZ'),
-                                        enabled: false,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("CSV file"),
-                                  ElevatedButton.icon(
-                                    onPressed: _selectCsvFile,
-                                    icon: Icon(Icons.folder),
-                                    label: Text('Select'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('Cancel'),
-                            ),
-                            ElevatedButton(
-                              onPressed: _importTransactions,
-                              child: Text('Import'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  icon: Icon(Icons.file_upload,),
-                ),
+                // DateRangePickerWidget(fromDateCallback: (from) => setState(() { _fromDate = from;}), toDateCallback: (from) => setState(() { _fromDate = from;}))
+                // DropdownButton<String>(
+                //   value: _period,
+                //   onChanged: (value) {
+                //     setState(() {
+                //       _period = value ?? "";
+                //     });
+                //   },
+                //   items: [
+                //     DropdownMenuItem(
+                //       value: 'PAYPERIOD',
+                //       child: Text('This Pay Period'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: 'WEEK',
+                //       child: Text('This Week'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: 'MONTH',
+                //       child: Text('This Month'),
+                //     ),
+                //     DropdownMenuItem(
+                //       value: 'YEAR',
+                //       child: Text('This Year'),
+                //     ),
+                //   ],
+                // ),
+                // ElevatedButton.icon(
+                //   label: Text("Import"),
+                //   onPressed: () {
+                //     showDialog(
+                //       context: context,
+                //       builder: (BuildContext context) {
+                //         return AlertDialog(
+                //           title: Text('Import Transactions'),
+                //           content: Column(
+                //             mainAxisSize: MainAxisSize.min,
+                //             children: [
+                //               Row(
+                //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //                 children: [
+                //                   Text("Select your bank"),
+                //                   DropdownButton<String>(
+                //                     value: _bankType,
+                //                     onChanged: (value) {
+                //                       setState(() {
+                //                         _bankType = value ?? "";
+                //                       });
+                //                     },
+                //                     items: [
+                //                       DropdownMenuItem(
+                //                         value: 'ASB',
+                //                         child: Text('ASB'),
+                //                       ),
+                //                       DropdownMenuItem(
+                //                         value: 'BNZ',
+                //                         child: Text('BNZ'),
+                //                         enabled: false,
+                //                       ),
+                //                       DropdownMenuItem(
+                //                         value: 'ANZ',
+                //                         child: Text('ANZ'),
+                //                         enabled: false,
+                //                       ),
+                //                     ],
+                //                   ),
+                //                 ],
+                //               ),
+                //               SizedBox(height: 20),
+                //               Row(
+                //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //                 children: [
+                //                   Text("CSV file"),
+                //                   ElevatedButton.icon(
+                //                     onPressed: _selectCsvFile,
+                //                     icon: Icon(Icons.folder),
+                //                     label: Text('Select'),
+                //                   ),
+                //                 ],
+                //               ),
+                //             ],
+                //           ),
+                //           actions: [
+                //             TextButton(
+                //               onPressed: () {
+                //                 Navigator.pop(context);
+                //               },
+                //               child: Text('Cancel'),
+                //             ),
+                //             ElevatedButton(
+                //               onPressed: _importTransactions,
+                //               child: Text('Import'),
+                //             ),
+                //           ],
+                //         );
+                //       },
+                //     );
+                //   },
+                //   icon: Icon(Icons.file_upload,),
+                // ),
               ],
             ),
             ElevatedButton(
@@ -187,7 +194,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => AllPaymentsPage()));
+                          builder: (context) => TransactionListPage()));
                 },
                 child: Text('View All Transactions')),
           ],

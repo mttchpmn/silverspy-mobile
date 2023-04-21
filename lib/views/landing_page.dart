@@ -5,7 +5,7 @@ import 'package:silverspy/views/login_page.dart';
 import 'package:silverspy/views/transactions_overview_page.dart';
 
 import 'dashboard_page.dart';
-import 'transactions_page.dart';
+import 'transactions_list_page.dart';
 // import 'payments_page.dart';
 import 'payments_overview_page.dart';
 import 'settings_page.dart';
