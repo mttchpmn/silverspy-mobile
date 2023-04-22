@@ -5,7 +5,7 @@ class Transaction {
   final String description;
   final String category;
   final String? details;
-  final int type;
+  final String type;
   final double value;
 
   Transaction({
