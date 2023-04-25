@@ -6,6 +6,8 @@ import 'package:silverspy/models/transaction_response_model.dart';
 import 'package:silverspy/providers/auth_provider.dart';
 import 'package:silverspy/services/transaction_service.dart';
 
+import '../helpers/icon_helper.dart';
+
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({Key? key}) : super(key: key);
 
@@ -92,54 +94,16 @@ class TransactionsList extends StatelessWidget {
         itemBuilder: (context, index) {
           final transaction = data.transactions[index];
           return ListTile(
-            leading: _getIcon(transaction.category),
+            leading: IconHelper.getIconForCategory(transaction.category),
             title: Text(transaction.reference),
-            subtitle: Text(DateFormat.yMMMMd('en_US').format(DateTime.parse(transaction.transactionDate).toLocal())),
+            subtitle: Text(DateFormat.yMMMMd('en_US').format(
+                DateTime.parse(transaction.transactionDate).toLocal())),
             trailing: Text('\$${transaction.value}'),
             onTap: () {},
           );
         },
       ),
     );
-  }
-
-  Icon _getIcon(String category) {
-    switch (category) {
-      case "UNCATEGORIZED":
-        return Icon(Icons.question_mark);
-      case "RENT":
-        return Icon(Icons.home);
-      case "UTILITIES":
-        return Icon(Icons.power);
-      case "GROCERIES":
-        return Icon(Icons.shopping_cart);
-      case "TRANSPORTATION":
-        return Icon(Icons.car_rental);
-      case "INSURANCE":
-        return Icon(Icons.account_balance);
-      case "HEALTHCARE":
-        return Icon(Icons.healing);
-      case "REPAYMENTS":
-        return Icon(Icons.paid);
-      case "SAVINGS":
-        return Icon(Icons.money);
-      case "INVESTMENT":
-        return Icon(Icons.rocket_launch);
-      case "SUBSCRIPTIONS":
-        return Icon(Icons.credit_card);
-      case "SHOPPING":
-        return Icon(Icons.shopping_bag);
-      case "FOODANDDRINK":
-        return Icon(Icons.fastfood);
-      case "RECREATION":
-        return Icon(Icons.kayaking);
-      case "PERSONAL":
-        return Icon(Icons.person);
-      case "MISCELLANEOUS":
-        return Icon(Icons.miscellaneous_services);
-      default:
-        return Icon(Icons.question_mark);
-    }
   }
 }
 

@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:silverspy/components/date_range_picker.dart';
+import 'package:silverspy/components/transaction_category_total_list.dart';
+import 'package:silverspy/models/transaction_response_model.dart';
 import 'package:silverspy/views/payments_list_page.dart';
 import 'package:silverspy/views/transactions_list_page.dart';
 
+import '../providers/auth_provider.dart';
 import '../services/transaction_service.dart';
 
 class TransactionsOverviewPage extends StatefulWidget {
@@ -17,6 +21,7 @@ class TransactionsOverviewPage extends StatefulWidget {
 }
 
 class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
+  final TransactionService _transactionService = TransactionService();
   String _bankType = "ASB";
   String _period = "PAYPERIOD";
 
@@ -24,6 +29,25 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   DateTime _fromDate = DateTime.now();
 
   late File? _csvFile;
+  late String _accessToken;
+
+  late Future<TransactionResponse> _transactionResponse;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _transactionResponse = _getTransactionResponse();
+  }
+
+  Future<TransactionResponse> _getTransactionResponse() async {
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    return authProvider.getCredentials().then((value) {
+      _accessToken = value.accessToken;
+      return _transactionService.fetchTransactions(value.accessToken);
+    });
+  }
 
   Future<void> _importTransactions() async {
     if (_csvFile == null) {
@@ -75,130 +99,64 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
       appBar: AppBar(
         title: Text('Transactions Overview'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+      body: FutureBuilder<TransactionResponse>(
+        future: _transactionResponse,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [CircularProgressIndicator()],
+                  )
+                ]);
+          }
+
+          if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+
+          var data = snapshot.data!;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // DateRangePickerWidget(fromDateCallback: (from) => setState(() { _fromDate = from;}), toDateCallback: (from) => setState(() { _fromDate = from;}))
-                // DropdownButton<String>(
-                //   value: _period,
-                //   onChanged: (value) {
-                //     setState(() {
-                //       _period = value ?? "";
-                //     });
-                //   },
-                //   items: [
-                //     DropdownMenuItem(
-                //       value: 'PAYPERIOD',
-                //       child: Text('This Pay Period'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: 'WEEK',
-                //       child: Text('This Week'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: 'MONTH',
-                //       child: Text('This Month'),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: 'YEAR',
-                //       child: Text('This Year'),
-                //     ),
-                //   ],
-                // ),
-                // ElevatedButton.icon(
-                //   label: Text("Import"),
-                //   onPressed: () {
-                //     showDialog(
-                //       context: context,
-                //       builder: (BuildContext context) {
-                //         return AlertDialog(
-                //           title: Text('Import Transactions'),
-                //           content: Column(
-                //             mainAxisSize: MainAxisSize.min,
-                //             children: [
-                //               Row(
-                //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //                 children: [
-                //                   Text("Select your bank"),
-                //                   DropdownButton<String>(
-                //                     value: _bankType,
-                //                     onChanged: (value) {
-                //                       setState(() {
-                //                         _bankType = value ?? "";
-                //                       });
-                //                     },
-                //                     items: [
-                //                       DropdownMenuItem(
-                //                         value: 'ASB',
-                //                         child: Text('ASB'),
-                //                       ),
-                //                       DropdownMenuItem(
-                //                         value: 'BNZ',
-                //                         child: Text('BNZ'),
-                //                         enabled: false,
-                //                       ),
-                //                       DropdownMenuItem(
-                //                         value: 'ANZ',
-                //                         child: Text('ANZ'),
-                //                         enabled: false,
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ],
-                //               ),
-                //               SizedBox(height: 20),
-                //               Row(
-                //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //                 children: [
-                //                   Text("CSV file"),
-                //                   ElevatedButton.icon(
-                //                     onPressed: _selectCsvFile,
-                //                     icon: Icon(Icons.folder),
-                //                     label: Text('Select'),
-                //                   ),
-                //                 ],
-                //               ),
-                //             ],
-                //           ),
-                //           actions: [
-                //             TextButton(
-                //               onPressed: () {
-                //                 Navigator.pop(context);
-                //               },
-                //               child: Text('Cancel'),
-                //             ),
-                //             ElevatedButton(
-                //               onPressed: _importTransactions,
-                //               child: Text('Import'),
-                //             ),
-                //           ],
-                //         );
-                //       },
-                //     );
-                //   },
-                //   icon: Icon(Icons.file_upload,),
-                // ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      label: Text("Sync with bank"),
+                      onPressed: () {
+                        // TODO
+                      },
+                      icon: Icon(Icons.cloud_sync,),
+                    ),
+                  ],
+                ),
+
+                CategoryTotalList(categoryTotals: data.categoryTotals),
+
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        minimumSize: const Size.fromHeight(50)),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TransactionListPage()));
+                    },
+                    child: Text('View All Transactions')),
               ],
             ),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    minimumSize: const Size.fromHeight(50)
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TransactionListPage()));
-                },
-                child: Text('View All Transactions')),
-          ],
-        ),
+          );
+
+        },
+
       ),
     );
   }
