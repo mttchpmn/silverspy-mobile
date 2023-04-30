@@ -1,109 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:silverspy/models/transaction_model.dart';
+import 'package:silverspy/components/transaction_edit_dialog.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
-import 'package:silverspy/providers/auth_provider.dart';
 import 'package:silverspy/services/transaction_service.dart';
 
 import '../helpers/icon_helper.dart';
+import '../models/transaction_model.dart';
 
 class TransactionListPage extends StatefulWidget {
-  const TransactionListPage({Key? key}) : super(key: key);
+  final String title;
+  final List<Transaction> transactionResponse;
+  final ValueChanged<Transaction> onTransactionUpdated;
+
+  const TransactionListPage({Key? key, required this.title, required this.transactionResponse, required this.onTransactionUpdated})
+      : super(key: key);
 
   @override
   _TransactionListPageState createState() => _TransactionListPageState();
 }
 
 class _TransactionListPageState extends State<TransactionListPage> {
-  late String _accessToken;
-  late Future<TransactionResponse> transactions;
-  final TransactionService _transactionsService = TransactionService();
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    transactions = fetchTransactions();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    transactions = fetchTransactions();
-  }
-
-  Future<TransactionResponse> fetchTransactions() async {
-    var authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    return authProvider.getCredentials().then((value) {
-      _accessToken = value.accessToken;
-      return _transactionsService.fetchTransactions(value.accessToken);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('All Transactions'),
+          title: Text(widget.title),
         ),
-        body: FutureBuilder<TransactionResponse>(
-            future: transactions,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                var data = snapshot.data!;
-
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TransactionsList(data: data),
-                  ],
-                );
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-
-              return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [CircularProgressIndicator()],
-                    )
-                  ]);
-            }));
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TransactionsList(transactions: widget.transactionResponse, onTransactionUpdated: widget.onTransactionUpdated),
+          ],
+        ));
   }
 }
 
-class TransactionsList extends StatelessWidget {
+class TransactionsList extends StatefulWidget {
+  final List<Transaction> transactions;
+  final ValueChanged<Transaction> onTransactionUpdated;
+
   const TransactionsList({
     super.key,
-    required this.data,
+    required this.transactions,
+    required this.onTransactionUpdated
   });
 
-  final TransactionResponse data;
+  @override
+  State<StatefulWidget> createState() => _TransactionsListState();
+}
+
+class _TransactionsListState extends State<TransactionsList> {
+  late List<Transaction> transactions;
+
+  _TransactionsListState();
 
   @override
   Widget build(BuildContext context) {
+    transactions = widget.transactions;
+
     return Expanded(
       child: ListView.builder(
-        itemCount: data.transactions.length,
+        itemCount: transactions.length,
         itemBuilder: (context, index) {
-          final transaction = data.transactions[index];
+            var transaction = transactions[index];
+
           return ListTile(
-            leading: IconHelper.getIconForCategory(transaction.category),
+            leading:
+                IconHelper.getIconForCategory(transaction.category),
             title: Text(transaction.reference),
             subtitle: Text(DateFormat.yMMMMd('en_US').format(
-                DateTime.parse(transaction.transactionDate).toLocal())),
+                DateTime.parse(transaction.transactionDate)
+                    .toLocal())),
             trailing: Text('\$${transaction.value}'),
-            onTap: () {},
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return EditTransactionDialog(
+                    transaction: transaction,
+                    leftSwipeHandler: () {
+                      debugPrint("Swiped left");
+                    },
+                    rightSwipeHandler: () {
+                      debugPrint("Swiped right");
+                    },
+                    onSaveHandler: (updatedTransaction) async {
+                      debugPrint(updatedTransaction.toString());
+                      setState(() {
+                        transactions[index] = updatedTransaction;
+                      });
+                       widget.onTransactionUpdated(updatedTransaction);
+                    },
+                  );
+                },
+              );
+            },
           );
         },
       ),
     );
   }
 }
-

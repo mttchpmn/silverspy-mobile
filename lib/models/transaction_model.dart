@@ -3,21 +3,20 @@ class Transaction {
   final String transactionDate;
   final String reference;
   final String description;
-  final String category;
-  final String? details;
+  String category;
+  String? details;
   final String type;
   final double value;
 
-  Transaction({
-    required this.id,
-    required this.transactionDate,
-    required this.reference,
-    required this.description,
-    required this.category,
-    required this.details,
-    required this.type,
-    required this.value
-  });
+  Transaction(
+      {required this.id,
+      required this.transactionDate,
+      required this.reference,
+      required this.description,
+      required this.category,
+      required this.details,
+      required this.type,
+      required this.value});
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
