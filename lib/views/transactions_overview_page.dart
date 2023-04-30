@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:silverspy/components/date_range_picker.dart';
+import 'package:silverspy/components/period_selector.dart';
 import 'package:silverspy/components/transaction_category_total_list.dart';
+import 'package:silverspy/helpers/date_helper.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
 import 'package:silverspy/views/payments_list_page.dart';
 import 'package:silverspy/views/transactions_list_page.dart';
 
+import '../components/loading_spinner.dart';
+import '../models/transaction_model.dart';
 import '../providers/auth_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -22,14 +26,10 @@ class TransactionsOverviewPage extends StatefulWidget {
 
 class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   final TransactionService _transactionService = TransactionService();
-  String _bankType = "ASB";
-  String _period = "PAYPERIOD";
 
-  DateTime _toDate = DateTime.now();
-  DateTime _fromDate = DateTime.now();
-
-  late File? _csvFile;
-  late String _accessToken;
+  late DateTime _toDate;
+  late DateTime _fromDate;
+  late DatePeriodType _datePeriod;
 
   late Future<TransactionResponse> _transactionResponse;
 
@@ -38,59 +38,49 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     super.initState();
 
     _transactionResponse = _getTransactionResponse();
-  }
+    var weekPeriod = DateHelper.getWeekPeriod();
 
-  Future<TransactionResponse> _getTransactionResponse() async {
-    var authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    return authProvider.getCredentials().then((value) {
-      _accessToken = value.accessToken;
-      return _transactionService.fetchTransactions(value.accessToken);
+    setState(() {
+      _toDate = weekPeriod.to;
+      _fromDate = weekPeriod.from;
+      _datePeriod = DatePeriodType.Weekly;
     });
   }
 
-  Future<void> _importTransactions() async {
-    if (_csvFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please select a CSV file.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-    try {
-      String fileContent = await _csvFile!.readAsString();
-      debugPrint(fileContent);
-      // TransactionService.importTransactions(_bankType, fileContent);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Transactions imported successfully.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error importing transactions. Please try again.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
+    _transactionResponse = _getTransactionResponse();
   }
 
-  Future<void> _selectCsvFile() async {
-    var result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv'],
-    );
-    if (result != null) {
-      setState(() {
-        _csvFile = File(result.files.single.path!); // TODO - Remove bang
-      });
-    }
+  Future<void> _syncTransactions() async {
+    debugPrint("Syncing transactions...");
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    return authProvider.getCredentials().then((value) {
+      return _transactionService.syncTransactions(value.accessToken);
+    });
+  }
+
+  Future<Transaction> _updateTransaction(Transaction updatedTransaction) {
+    debugPrint("Updating transaction...");
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    return authProvider.getCredentials().then((value) {
+      return _transactionService.updateTransaction(
+          value.accessToken, updatedTransaction);
+    });
+  }
+
+  Future<TransactionResponse> _getTransactionResponse() async {
+    debugPrint("Fetching transactions...");
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    return authProvider.getCredentials().then((value) {
+      return _transactionService.fetchTransactions(
+          value.accessToken, _fromDate, _toDate);
+    });
   }
 
   @override
@@ -102,16 +92,9 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
       body: FutureBuilder<TransactionResponse>(
         future: _transactionResponse,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [CircularProgressIndicator()],
-                  )
-                ]);
+          if (snapshot.connectionState != ConnectionState.done ||
+              !snapshot.hasData) {
+            return const LoadingSpinner();
           }
 
           if (snapshot.hasError) {
@@ -125,39 +108,85 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton.icon(
-                      label: Text("Sync with bank"),
-                      onPressed: () {
-                        // TODO
-                      },
-                      icon: Icon(Icons.cloud_sync,),
-                    ),
-                  ],
+                PeriodSelector(
+                    fromDate: _fromDate,
+                    toDate: _toDate,
+                    initialDatePeriod: _datePeriod,
+                    onPeriodChange: (x) {
+                      debugPrint("From: ${x.from}");
+                      debugPrint("To: ${x.to}");
+                      setState(() {
+                        _fromDate = x.from;
+                        _toDate = x.to;
+                        _transactionResponse = _getTransactionResponse();
+                      });
+                    }),
+                Divider(),
+                // Row( // TODO
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     ElevatedButton.icon(
+                //       label: Text("Sync"),
+                //       onPressed: () async {
+                //         await _syncTransactions();
+                //         setState(() {
+                //           _transactionResponse = _getTransactionResponse();
+                //         });
+                //       },
+                //       icon: Icon(
+                //         Icons.cloud_sync,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                CategoryTotalList(
+                  categoryTotals: data.categoryTotals,
+                  onTapCallback: (categoryName) {
+                    debugPrint("Tapped: $categoryName category");
+                    var transactions = data.transactions
+                        .where((x) => x.category == categoryName)
+                        .toList();
+                    _showTransactionListPage(
+                        context, transactions, "${categoryName} Transactions");
+                  },
                 ),
-
-                CategoryTotalList(categoryTotals: data.categoryTotals),
-
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        minimumSize: const Size.fromHeight(50)),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => TransactionListPage()));
-                    },
-                    child: Text('View All Transactions')),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          minimumSize: const Size.fromHeight(50)),
+                      onPressed: () {
+                        _showTransactionListPage(
+                            context, data.transactions, "All Transactions");
+                      },
+                      child: Text('View All Transactions')),
+                ),
               ],
             ),
           );
-
         },
-
       ),
     );
+  }
+
+  void _showTransactionListPage(
+      BuildContext context, List<Transaction> data, String category) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TransactionListPage(
+                  title: category,
+                  transactionResponse: data,
+                  onTransactionUpdated: (x) async {
+                    await _updateTransaction(x);
+                    var snackBar = SnackBar(
+                        content: Text('Updated transaction successfully'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    setState(() {
+                      _transactionResponse = _getTransactionResponse();
+                    });
+                  },
+                )));
   }
 }
