@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:silverspy/components/alert_dialog.dart';
 import 'package:silverspy/components/date_range_picker.dart';
 import 'package:silverspy/components/full_width_button.dart';
 import 'package:silverspy/components/period_selector.dart';
@@ -62,13 +63,13 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     var authProvider = Provider.of<AuthProvider>(context, listen: false);
     var credentials = await _akahuProvider.loadCredentials();
 
-    if (credentials.akahuId == "" || credentials.accessToken == "")
-      {
-        throw Exception("Akahu credentials not set");
-      }
+    if (credentials.akahuId == "" || credentials.accessToken == "") {
+      _showAlertDialog();
+    }
 
     return authProvider.getCredentials().then((value) {
-      return _transactionService.syncTransactions(value.accessToken, credentials.akahuId, credentials.accessToken);
+      return _transactionService.syncTransactions(
+          value.accessToken, credentials.akahuId, credentials.accessToken);
     });
   }
 
@@ -90,6 +91,19 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
       return _transactionService.fetchTransactions(
           value.accessToken, _fromDate, _toDate);
     });
+  }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Alert(
+          label: "Missing Credentials",
+          detail: "Please set your Akahu credentials in the settings page",
+        );
+      },
+    );
   }
 
   @override
@@ -152,7 +166,8 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                       onPressed: () async {
                         await _syncTransactions();
                         var snackBar = const SnackBar(
-                            content: Text('Synced transactions with bank successfully'));
+                            content: Text(
+                                'Synced transactions with bank successfully'));
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         setState(() {
                           _transactionResponse = _getTransactionResponse();
