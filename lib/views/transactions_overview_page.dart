@@ -1,23 +1,18 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
+
 import 'package:silverspy/components/alert_dialog.dart';
-import 'package:silverspy/components/date_range_picker.dart';
-import 'package:silverspy/components/full_width_button.dart';
+import 'package:silverspy/components/atoms/full_width_button.dart';
+import 'package:silverspy/components/loading_spinner.dart';
 import 'package:silverspy/components/period_selector.dart';
 import 'package:silverspy/components/transaction_category_total_list.dart';
 import 'package:silverspy/helpers/date_helper.dart';
+import 'package:silverspy/models/transaction_model.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
 import 'package:silverspy/providers/akahu_provider.dart';
-import 'package:silverspy/views/payments_list_page.dart';
+import 'package:silverspy/providers/auth_provider.dart';
+import 'package:silverspy/services/transaction_service.dart';
 import 'package:silverspy/views/transactions_list_page.dart';
-
-import '../components/loading_spinner.dart';
-import '../models/transaction_model.dart';
-import '../providers/auth_provider.dart';
-import '../services/transaction_service.dart';
 
 class TransactionsOverviewPage extends StatefulWidget {
   const TransactionsOverviewPage({super.key});
@@ -41,7 +36,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   void initState() {
     super.initState();
 
-    _transactionResponse = _getTransactionResponse();
+    _transactionResponse = _fetchTransactionResponse();
     var weekPeriod = DateHelper.getWeekPeriod();
 
     setState(() {
@@ -55,7 +50,17 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _transactionResponse = _getTransactionResponse();
+    _transactionResponse = _fetchTransactionResponse();
+  }
+
+  Future<TransactionResponse> _fetchTransactionResponse() async {
+    debugPrint("Fetching transactions...");
+    var authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    return authProvider.getCredentials().then((value) {
+      return _transactionService.fetchTransactions(
+          value.accessToken, _fromDate, _toDate);
+    });
   }
 
   Future<void> _syncTransactions() async {
@@ -83,22 +88,12 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     });
   }
 
-  Future<TransactionResponse> _getTransactionResponse() async {
-    debugPrint("Fetching transactions...");
-    var authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    return authProvider.getCredentials().then((value) {
-      return _transactionService.fetchTransactions(
-          value.accessToken, _fromDate, _toDate);
-    });
-  }
-
   Future<void> _showAlertDialog() async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
-        return Alert(
+        return const Alert(
           label: "Missing Credentials",
           detail: "Please set your Akahu credentials in the settings page",
         );
@@ -106,11 +101,52 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     );
   }
 
+  void _handleCategorySelect(
+      TransactionResponse data, String categoryName, BuildContext context) {
+    var transactions =
+        data.transactions.where((x) => x.category == categoryName).toList();
+    _showTransactionListPage(
+        context, transactions, "${categoryName} Transactions");
+  }
+
+  void _showTransactionListPage(
+      BuildContext context, List<Transaction> data, String category) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TransactionListPage(
+                  title: category,
+                  transactionResponse: data,
+                  onTransactionUpdated: (x) async {
+                    await _updateTransaction(x);
+                    var snackBar = const SnackBar(
+                        content: Text('Updated transaction successfully'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    setState(() {
+                      _transactionResponse = _fetchTransactionResponse();
+                    });
+                  },
+                )));
+  }
+
+  Future<void> _onSyncWithBankButtonPress(BuildContext context) async {
+    var initialSnackBar =
+        const SnackBar(content: Text('Syncing transactions with Bank...'));
+    ScaffoldMessenger.of(context).showSnackBar(initialSnackBar);
+    await _syncTransactions();
+    var snackBar = const SnackBar(
+        content: Text('Synced transactions with Bank successfully'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {
+      _transactionResponse = _fetchTransactionResponse();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transactions Overview'),
+        title: const Text('Transactions Overview'),
       ),
       body: Column(
         children: [
@@ -124,7 +160,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                 setState(() {
                   _fromDate = x.from;
                   _toDate = x.to;
-                  _transactionResponse = _getTransactionResponse();
+                  _transactionResponse = _fetchTransactionResponse();
                 });
               }),
           const Divider(),
@@ -160,26 +196,12 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                             _showTransactionListPage(
                                 context, data.transactions, "All Transactions");
                           }),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: OutlinedButton(
-                            style: ElevatedButton.styleFrom(
-                                // backgroundColor: Colors.purple,
-                                minimumSize: const Size.fromHeight(50)),
-                            onPressed: () async {
-                              await _syncTransactions();
-                              var snackBar = const SnackBar(
-                                  content: Text(
-                                      'Synced transactions with bank successfully'));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                              setState(() {
-                                _transactionResponse =
-                                    _getTransactionResponse();
-                              });
-                            },
-                            child: Text("Sync with Bank")),
-                      )
+                      FullWidthButton(
+                          buttonType: ButtonType.outlined,
+                          label: 'Sync with Bank',
+                          onPressed: () async {
+                            await _onSyncWithBankButtonPress(context);
+                          }),
                     ],
                   ),
                 );
@@ -189,33 +211,5 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
         ],
       ),
     );
-  }
-
-  void _handleCategorySelect(
-      TransactionResponse data, String categoryName, BuildContext context) {
-    var transactions =
-        data.transactions.where((x) => x.category == categoryName).toList();
-    _showTransactionListPage(
-        context, transactions, "${categoryName} Transactions");
-  }
-
-  void _showTransactionListPage(
-      BuildContext context, List<Transaction> data, String category) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => TransactionListPage(
-                  title: category,
-                  transactionResponse: data,
-                  onTransactionUpdated: (x) async {
-                    await _updateTransaction(x);
-                    var snackBar = const SnackBar(
-                        content: Text('Updated transaction successfully'));
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    setState(() {
-                      _transactionResponse = _getTransactionResponse();
-                    });
-                  },
-                )));
   }
 }

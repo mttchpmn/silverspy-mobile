@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:silverspy/components/akahu_auth_widget.dart';
 import 'package:silverspy/providers/auth_provider.dart';
 
-import '../components/full_width_button.dart';
+import '../components/atoms/full_width_button.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
