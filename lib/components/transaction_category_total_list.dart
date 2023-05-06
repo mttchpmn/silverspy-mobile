@@ -68,7 +68,7 @@ class CategoryTotalRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('\$' + total.toStringAsFixed(2)),
+              Text('\$${total.abs().toStringAsFixed(2)}'),
             ],
           ),
           if (target > 0)
@@ -110,7 +110,7 @@ class SpendProgress extends StatelessWidget {
         )),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Text(target.toString()),
+          child: Text("\$$target"),
         ),
       ],
     );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:silverspy/components/akahu_auth_widget.dart';
 import 'package:silverspy/providers/auth_provider.dart';
+
+import '../components/full_width_button.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -39,52 +42,74 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Income frequency',
-              style: Theme.of(context).textTheme.subtitle1,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     Text(
+                //       'Income Settings',
+                //       style: Theme.of(context).textTheme.titleMedium,
+                //     ),
+                //     SizedBox(height: 8.0),
+                //     DropdownButton<String>(
+                //       value: _selectedFrequency,
+                //       onChanged: (String? value) {
+                //         setState(() {
+                //           _selectedFrequency = value!;
+                //         });
+                //       },
+                //       items: <String>['Weekly', 'Fortnightly', 'Monthly']
+                //           .map<DropdownMenuItem<String>>((String value) {
+                //         return DropdownMenuItem<String>(
+                //           value: value,
+                //           child: Text(value),
+                //         );
+                //       }).toList(),
+                //     ),
+                //     SizedBox(height: 16.0),
+                //     Text(
+                //       'Income date',
+                //       style: Theme.of(context).textTheme.subtitle1,
+                //     ),
+                //     SizedBox(height: 8.0),
+                //     InkWell(
+                //       onTap: _showDatePicker,
+                //       child: Row(
+                //         children: [
+                //           Icon(Icons.calendar_today),
+                //           SizedBox(width: 8.0),
+                //           Text(
+                //             '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                //             style: Theme.of(context).textTheme.bodyMedium,
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // SizedBox(height: 32,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Akahu Settings',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    SizedBox(height: 8.0),
+                    AkahuAuthWidget(),
+                  ],
+                )
+              ],
             ),
-            SizedBox(height: 8.0),
-            DropdownButton<String>(
-              value: _selectedFrequency,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedFrequency = value!;
-                });
-              },
-              items: <String>['Weekly', 'Fortnightly', 'Monthly']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Income date',
-              style: Theme.of(context).textTheme.subtitle1,
-            ),
-            SizedBox(height: 8.0),
-            InkWell(
-              onTap: _showDatePicker,
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today),
-                  SizedBox(width: 8.0),
-                  Text(
-                    '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
+            FullWidthButton(
+                label: "Log out",
                 onPressed: () {
                   authProvider.logout();
-                },
-                child: Text("Log out"))
+                })
           ],
         ),
       ),

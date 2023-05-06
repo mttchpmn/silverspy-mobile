@@ -10,11 +10,20 @@ class TransactionService {
   final String akahuId = '';
   final String akahuToken = '';
 
-  Future<void> syncTransactions(String accessToken) async {
+  Future<void> syncTransactions(
+      String accessToken, String akahuId, String akahuToken) async {
     debugPrint("Syncing transactions");
     var url = "$apiUrl/ingest";
-    var headers = <String, String>{"Authorization": "Bearer $accessToken"};
-    final response = await http.post(Uri.parse(url), headers: headers);
+    var headers = <String, String>{
+      "Authorization": "Bearer $accessToken",
+      "Content-Type": "application/json; charset=UTF-8"
+    };
+    final response = await http.post(Uri.parse(url),
+        headers: headers,
+        body: json.encode({
+          'akahuId': akahuId,
+          'akahuToken': akahuToken,
+        }));
 
     if (response.statusCode != 200) {
       throw Exception("Error syncing transactions: ${response.statusCode}");

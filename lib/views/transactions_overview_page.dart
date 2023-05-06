@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:silverspy/components/date_range_picker.dart';
+import 'package:silverspy/components/full_width_button.dart';
 import 'package:silverspy/components/period_selector.dart';
 import 'package:silverspy/components/transaction_category_total_list.dart';
 import 'package:silverspy/helpers/date_helper.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
+import 'package:silverspy/providers/akahu_provider.dart';
 import 'package:silverspy/views/payments_list_page.dart';
 import 'package:silverspy/views/transactions_list_page.dart';
 
@@ -26,6 +28,7 @@ class TransactionsOverviewPage extends StatefulWidget {
 
 class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   final TransactionService _transactionService = TransactionService();
+  final AkahuProvider _akahuProvider = AkahuProvider();
 
   late DateTime _toDate;
   late DateTime _fromDate;
@@ -57,9 +60,15 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   Future<void> _syncTransactions() async {
     debugPrint("Syncing transactions...");
     var authProvider = Provider.of<AuthProvider>(context, listen: false);
+    var credentials = await _akahuProvider.loadCredentials();
+
+    if (credentials.akahuId == "" || credentials.accessToken == "")
+      {
+        throw Exception("Akahu credentials not set");
+      }
 
     return authProvider.getCredentials().then((value) {
-      return _transactionService.syncTransactions(value.accessToken);
+      return _transactionService.syncTransactions(value.accessToken, credentials.akahuId, credentials.accessToken);
     });
   }
 
@@ -122,41 +131,35 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                       });
                     }),
                 Divider(),
-                // Row( // TODO
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     ElevatedButton.icon(
-                //       label: Text("Sync"),
-                //       onPressed: () async {
-                //         await _syncTransactions();
-                //         setState(() {
-                //           _transactionResponse = _getTransactionResponse();
-                //         });
-                //       },
-                //       icon: Icon(
-                //         Icons.cloud_sync,
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 CategoryTotalList(
                   categoryTotals: data.categoryTotals,
                   onTapCallback: (categoryName) {
                     _handleCategorySelect(data, categoryName, context);
                   },
                 ),
+                FullWidthButton(
+                    label: 'View All Transactions',
+                    onPressed: () {
+                      _showTransactionListPage(
+                          context, data.transactions, "All Transactions");
+                    }),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
+                          // backgroundColor: Colors.purple,
                           minimumSize: const Size.fromHeight(50)),
-                      onPressed: () {
-                        _showTransactionListPage(
-                            context, data.transactions, "All Transactions");
+                      onPressed: () async {
+                        await _syncTransactions();
+                        var snackBar = const SnackBar(
+                            content: Text('Synced transactions with bank successfully'));
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        setState(() {
+                          _transactionResponse = _getTransactionResponse();
+                        });
                       },
-                      child: Text('View All Transactions')),
-                ),
+                      child: Text("Sync with Bank")),
+                )
               ],
             ),
           );
