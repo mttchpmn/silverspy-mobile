@@ -142,12 +142,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                 CategoryTotalList(
                   categoryTotals: data.categoryTotals,
                   onTapCallback: (categoryName) {
-                    debugPrint("Tapped: $categoryName category");
-                    var transactions = data.transactions
-                        .where((x) => x.category == categoryName)
-                        .toList();
-                    _showTransactionListPage(
-                        context, transactions, "${categoryName} Transactions");
+                    _handleCategorySelect(data, categoryName, context);
                   },
                 ),
                 Padding(
@@ -170,6 +165,14 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     );
   }
 
+  void _handleCategorySelect(
+      TransactionResponse data, String categoryName, BuildContext context) {
+    var transactions =
+        data.transactions.where((x) => x.category == categoryName).toList();
+    _showTransactionListPage(
+        context, transactions, "${categoryName} Transactions");
+  }
+
   void _showTransactionListPage(
       BuildContext context, List<Transaction> data, String category) {
     Navigator.push(
@@ -180,7 +183,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                   transactionResponse: data,
                   onTransactionUpdated: (x) async {
                     await _updateTransaction(x);
-                    var snackBar = SnackBar(
+                    var snackBar = const SnackBar(
                         content: Text('Updated transaction successfully'));
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     setState(() {

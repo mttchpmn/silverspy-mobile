@@ -3,13 +3,13 @@ import 'package:silverspy/models/transaction_model.dart';
 
 class TransactionResponse{
   final List<Transaction> transactions;
-  final List<TransactionCategoryTotal> categoryTotals;
+  final List<TransactionCategorySummary> categoryTotals;
 
   TransactionResponse({required this.transactions, required this.categoryTotals});
 
   factory TransactionResponse.fromJson(Map<String, dynamic> json) {
     List<Transaction> transactions = json['transactions'].map<Transaction>((x) => Transaction.fromJson(x)).toList();
-    List<TransactionCategoryTotal> categoryTotals = json['categoryTotals'].map<TransactionCategoryTotal>((x) => TransactionCategoryTotal.fromJson(x)).toList();
+    List<TransactionCategorySummary> categoryTotals = json['categoryTotals'].map<TransactionCategorySummary>((x) => TransactionCategorySummary.fromJson(x)).toList();
 
     return TransactionResponse(
      transactions: transactions,
@@ -18,16 +18,18 @@ class TransactionResponse{
   }
 }
 
-class TransactionCategoryTotal {
+class TransactionCategorySummary {
   final String category;
-  final double value;
+  final double currentSpend;
+  final double budget; // Per week
 
-  TransactionCategoryTotal({required this.category, required this.value});
+  TransactionCategorySummary({required this.category, required this.currentSpend, required this.budget});
 
-  factory TransactionCategoryTotal.fromJson(Map<String, dynamic> json) {
-    return TransactionCategoryTotal(
+  factory TransactionCategorySummary.fromJson(Map<String, dynamic> json) {
+    return TransactionCategorySummary(
       category: json['category'],
-      value: double.parse(json['value'].toString()),
+      currentSpend: double.parse(json['currentSpend'].toString()),
+      budget: double.parse(json['budget'].toString()),
     );
   }
 }

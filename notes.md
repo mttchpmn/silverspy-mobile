@@ -30,16 +30,15 @@
 
 ## TODO
 
-- Fix date selector / period selector
-  - Maybe pull date window into a provider?
 - Persist Akahu deets in the app and use for transaction ingest
 - Fix 'details' entry in edit transaction dialog
 - Create 'tags', that work like subcategories, using chips and can have more than 1 tag per transaction
 - Flesh out dashboard page
 - Budgets
-  - Set a max category spend per week - track progress towards it
+  - Set a max category spend per week - track progress towards it using linear progress indicator and show in category totals
 - Auto ingest transactions on app load
 - Show 'normalized' weekly spend next to category totals?
 - Add new categories?
   - INCOME
   - BILLS?
+- Login Page improvements

@@ -27,7 +27,9 @@ class TransactionService {
       "Authorization": "Bearer $accessToken",
       "Content-Type": "application/json; charset=UTF-8"
     };
+
     debugPrint("Fetching transactions from $apiUrl");
+
     final response = await http.patch(Uri.parse(apiUrl),
         headers: headers,
         body: json.encode({
