@@ -112,73 +112,81 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
       appBar: AppBar(
         title: Text('Transactions Overview'),
       ),
-      body: FutureBuilder<TransactionResponse>(
-        future: _transactionResponse,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done ||
-              !snapshot.hasData) {
-            return const LoadingSpinner();
-          }
+      body: Column(
+        children: [
+          PeriodSelector(
+              fromDate: _fromDate,
+              toDate: _toDate,
+              initialDatePeriod: _datePeriod,
+              onPeriodChange: (x) {
+                debugPrint("From: ${x.from}");
+                debugPrint("To: ${x.to}");
+                setState(() {
+                  _fromDate = x.from;
+                  _toDate = x.to;
+                  _transactionResponse = _getTransactionResponse();
+                });
+              }),
+          const Divider(),
+          Expanded(
+            child: FutureBuilder<TransactionResponse>(
+              future: _transactionResponse,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done ||
+                    !snapshot.hasData) {
+                  return const LoadingSpinner();
+                }
 
-          if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
+                if (snapshot.hasError) {
+                  return Text('${snapshot.error}');
+                }
 
-          var data = snapshot.data!;
+                var data = snapshot.data!;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                PeriodSelector(
-                    fromDate: _fromDate,
-                    toDate: _toDate,
-                    initialDatePeriod: _datePeriod,
-                    onPeriodChange: (x) {
-                      debugPrint("From: ${x.from}");
-                      debugPrint("To: ${x.to}");
-                      setState(() {
-                        _fromDate = x.from;
-                        _toDate = x.to;
-                        _transactionResponse = _getTransactionResponse();
-                      });
-                    }),
-                Divider(),
-                CategoryTotalList(
-                  categoryTotals: data.categoryTotals,
-                  onTapCallback: (categoryName) {
-                    _handleCategorySelect(data, categoryName, context);
-                  },
-                ),
-                FullWidthButton(
-                    label: 'View All Transactions',
-                    onPressed: () {
-                      _showTransactionListPage(
-                          context, data.transactions, "All Transactions");
-                    }),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: OutlinedButton(
-                      style: ElevatedButton.styleFrom(
-                          // backgroundColor: Colors.purple,
-                          minimumSize: const Size.fromHeight(50)),
-                      onPressed: () async {
-                        await _syncTransactions();
-                        var snackBar = const SnackBar(
-                            content: Text(
-                                'Synced transactions with bank successfully'));
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        setState(() {
-                          _transactionResponse = _getTransactionResponse();
-                        });
-                      },
-                      child: Text("Sync with Bank")),
-                )
-              ],
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CategoryTotalList(
+                        categoryTotals: data.categoryTotals,
+                        onTapCallback: (categoryName) {
+                          _handleCategorySelect(data, categoryName, context);
+                        },
+                      ),
+                      FullWidthButton(
+                          label: 'View All Transactions',
+                          onPressed: () {
+                            _showTransactionListPage(
+                                context, data.transactions, "All Transactions");
+                          }),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: OutlinedButton(
+                            style: ElevatedButton.styleFrom(
+                                // backgroundColor: Colors.purple,
+                                minimumSize: const Size.fromHeight(50)),
+                            onPressed: () async {
+                              await _syncTransactions();
+                              var snackBar = const SnackBar(
+                                  content: Text(
+                                      'Synced transactions with bank successfully'));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                              setState(() {
+                                _transactionResponse =
+                                    _getTransactionResponse();
+                              });
+                            },
+                            child: Text("Sync with Bank")),
+                      )
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

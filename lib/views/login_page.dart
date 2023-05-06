@@ -1,6 +1,7 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:silverspy/components/full_width_button.dart';
 
 import '../providers/auth_provider.dart';
 
@@ -28,17 +29,75 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('Login'),
+          title: Text('Silverspy'),
         ),
-        body: Column(
-          children: [
-            Center(
-                child: ElevatedButton(
-                    onPressed: () async {
-                      await auth.login();
-                    },
-                    child: const Text("Log in"))),
-          ],
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image(
+                        image: AssetImage('assets/logo-circle.png'),
+                        width: 150,
+                        height: 150,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Silverspy',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 8,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Gain visibility into your finances',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        FullWidthButton(
+                            label: "Log in",
+                            onPressed: () async {
+                              await auth.login();
+                            }),
+                        SizedBox(height: 8),
+                        OutlinedButton(
+                          style: ElevatedButton.styleFrom(
+                              // backgroundColor: Colors.purple,
+                              minimumSize: const Size.fromHeight(50)),
+                          onPressed: () async {
+                            await auth.login();
+                          },
+                          child: Text("Sign up"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ));
   }
 }
