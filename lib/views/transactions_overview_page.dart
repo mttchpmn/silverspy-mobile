@@ -185,6 +185,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CategoryTotalList(
+                        datePeriodType: _datePeriod,
                         categoryTotals: data.categoryTotals,
                         onTapCallback: (categoryName) {
                           _handleCategorySelect(data, categoryName, context);

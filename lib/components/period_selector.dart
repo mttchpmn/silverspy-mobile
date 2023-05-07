@@ -16,7 +16,12 @@ class PeriodSelector extends StatefulWidget {
   final DateTime toDate;
   final DatePeriodType initialDatePeriod;
 
-  const PeriodSelector({super.key, required this.fromDate, required this.toDate, required this.initialDatePeriod, required this.onPeriodChange});
+  const PeriodSelector(
+      {super.key,
+      required this.fromDate,
+      required this.toDate,
+      required this.initialDatePeriod,
+      required this.onPeriodChange});
 
   @override
   State<StatefulWidget> createState() => _PeriodSelectorState();
@@ -42,6 +47,15 @@ class _PeriodSelectorState extends State<PeriodSelector> {
     });
   }
 
+  void _setDates() {
+    var period = DateHelper.getDatePeriodForType(_selectedDatePeriod);
+
+    setState(() {
+      _leftDate = period.from;
+      _rightDate = period.to;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,35 +65,18 @@ class _PeriodSelectorState extends State<PeriodSelector> {
           children: [
             IconButton(
                 onPressed: () {
-                  setState(() {
-                    _leftDate = _leftDate
-                        .subtract(_getOffsetDuration(_selectedDatePeriod));
-                    _rightDate = _rightDate
-                        .subtract(_getOffsetDuration(_selectedDatePeriod));
-                  });
-                  widget.onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+                  _handleLeftButtonPress();
                 },
                 icon: const Icon(Icons.chevron_left)),
             DropdownButton(
                 value: _selectedDatePeriod,
-                items: DatePeriodType.values
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
-                    .toList(),
+                items: _getDatePeriodValues(),
                 onChanged: (x) {
-                  setState(() {
-                    _selectedDatePeriod = x!;
-                  });
-                  widget.onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+                  _handlePeriodChange(x);
                 }),
             IconButton(
                 onPressed: () {
-                  setState(() {
-                    _rightDate =
-                        _rightDate.add(_getOffsetDuration(_selectedDatePeriod));
-                    _leftDate =
-                        _leftDate.add(_getOffsetDuration(_selectedDatePeriod));
-                  });
-                  widget.onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+                  _handleRightButtonPress();
                 },
                 icon: const Icon(Icons.chevron_right))
           ],
@@ -90,14 +87,52 @@ class _PeriodSelectorState extends State<PeriodSelector> {
     );
   }
 
+  List<DropdownMenuItem<DatePeriodType>> _getDatePeriodValues() {
+    return DatePeriodType.values
+        .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+        .toList();
+  }
+
+  void _handlePeriodChange(DatePeriodType? x) {
+    setState(() {
+      _selectedDatePeriod = x!;
+    });
+    _setDates();
+    widget
+        .onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+  }
+
+  void _handleRightButtonPress() {
+    setState(() {
+      _rightDate = _rightDate.add(_getOffsetDuration(_selectedDatePeriod));
+      _leftDate = _leftDate.add(_getOffsetDuration(_selectedDatePeriod));
+    });
+    widget
+        .onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+  }
+
+  void _handleLeftButtonPress() {
+    setState(() {
+      _leftDate = _leftDate.subtract(_getOffsetDuration(_selectedDatePeriod));
+      _rightDate = _rightDate.subtract(_getOffsetDuration(_selectedDatePeriod));
+    });
+    widget
+        .onPeriodChange(DatePeriod(_leftDate, _rightDate, _selectedDatePeriod));
+  }
+
   Duration _getOffsetDuration(DatePeriodType type) {
     switch (type) {
       case DatePeriodType.Weekly:
         return const Duration(days: 7);
-      // case DatePeriodType.Fortnightly:
-      //   return const Duration(days: 14);
-      // case DatePeriodType.Monthly:
-      //   return const Duration();
+      case DatePeriodType.Fortnightly:
+        return const Duration(days: 14);
+      case DatePeriodType.Monthly:
+        var now = DateTime.now();
+        var year = now.year;
+        var month = now.month;
+        var daysInMonth = DateTime(year, month + 1, 0).day;
+
+        return Duration(days: daysInMonth);
     }
   }
 
@@ -105,8 +140,8 @@ class _PeriodSelectorState extends State<PeriodSelector> {
 
 enum DatePeriodType {
   Weekly,
-  // Fortnightly,
-  // Monthly,
+  Fortnightly,
+  Monthly,
   // Yearly,
   // PayPeriod
 }

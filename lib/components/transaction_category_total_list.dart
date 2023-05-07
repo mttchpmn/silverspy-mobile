@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:silverspy/components/period_selector.dart';
 import 'package:silverspy/helpers/icon_helper.dart';
 
 import '../models/transaction_response_model.dart';
@@ -6,9 +7,13 @@ import '../models/transaction_response_model.dart';
 class CategoryTotalList extends StatelessWidget {
   final List<TransactionCategorySummary> categoryTotals;
   final ValueChanged<String> onTapCallback;
+  final DatePeriodType datePeriodType;
 
   const CategoryTotalList(
-      {super.key, required this.categoryTotals, required this.onTapCallback});
+      {super.key,
+      required this.categoryTotals,
+      required this.onTapCallback,
+      required this.datePeriodType});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +30,7 @@ class CategoryTotalList extends StatelessWidget {
             total: ct.currentSpend,
             target: ct.budget,
             onTapCallback: onTapCallback,
+            datePeriodType: datePeriodType,
           );
         },
       ),
@@ -51,11 +57,13 @@ class CategoryTotalRow extends StatelessWidget {
   final double total;
   final double target;
   final ValueChanged<String> onTapCallback;
+  final DatePeriodType datePeriodType;
 
-  CategoryTotalRow(
-      {required this.name,
+  const CategoryTotalRow(
+      {super.key, required this.name,
       required this.total,
       required this.target,
+      required this.datePeriodType,
       required this.onTapCallback});
 
   @override
@@ -75,6 +83,7 @@ class CategoryTotalRow extends StatelessWidget {
             (SpendProgress(
               target: target,
               currentSpend: total,
+              datePeriodType: datePeriodType,
             ))
         ],
       ),
@@ -90,15 +99,30 @@ class SpendProgress extends StatelessWidget {
     super.key,
     required this.currentSpend,
     required this.target,
+    required this.datePeriodType
   });
 
   final double currentSpend;
   final double target;
+  final DatePeriodType datePeriodType;
+
+  double _getAdjustedSpendTarget(double target)
+  {
+    switch (datePeriodType) {
+      case DatePeriodType.Weekly:
+        return target;
+      case DatePeriodType.Fortnightly:
+        return target * 2;
+      case DatePeriodType.Monthly:
+        return target * 4.3;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     var value = (currentSpend / target).abs();
     var color = value > 1 ? Colors.red : Colors.purple;
+    var adjustedTarget = _getAdjustedSpendTarget(target);
 
     return Row(
       children: [
@@ -110,7 +134,7 @@ class SpendProgress extends StatelessWidget {
         )),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Text("\$$target"),
+          child: Text("\$$adjustedTarget"),
         ),
       ],
     );
