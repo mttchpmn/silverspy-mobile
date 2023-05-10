@@ -28,9 +28,9 @@ class _LoginPageState extends State<LoginPage> {
     var auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Silverspy'),
-        ),
+        // appBar: AppBar(
+        //   title: Text('Silverspy'),
+        // ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -42,10 +42,13 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image(
-                        image: AssetImage('assets/logo-circle.png'),
-                        width: 150,
-                        height: 150,
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Image(
+                          image: AssetImage('assets/logo-circle.png'),
+                          width: 150,
+                          height: 150,
+                        ),
                       ),
                     ],
                   ),
