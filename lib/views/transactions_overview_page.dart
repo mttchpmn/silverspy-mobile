@@ -103,13 +103,13 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   }
 
   void _handleCategorySelect(TransactionResponse data,
-      FinanceCategory categoryName, BuildContext context) {
+      FinanceCategory category, BuildContext context) {
     var transactions = data.transactions
         .where(
-            (x) => FinanceCategoryExtensions.parse(x.category) == categoryName)
+            (x) => FinanceCategoryExtensions.parse(x.category) == category)
         .toList();
     _showTransactionListPage(
-        context, transactions, "${categoryName} Transactions");
+        context, transactions, category.toDisplayString());
   }
 
   void _showTransactionListPage(
