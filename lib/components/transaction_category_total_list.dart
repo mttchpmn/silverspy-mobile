@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:silverspy/components/period_selector.dart';
+import 'package:silverspy/constants/finance_category.dart';
 import 'package:silverspy/helpers/icon_helper.dart';
 
 import '../models/transaction_response_model.dart';
 
 class CategoryTotalList extends StatelessWidget {
   final List<TransactionCategorySummary> categoryTotals;
-  final ValueChanged<String> onTapCallback;
+  final ValueChanged<FinanceCategory> onTapCallback;
   final DatePeriodType datePeriodType;
 
   const CategoryTotalList(
@@ -26,7 +27,7 @@ class CategoryTotalList extends StatelessWidget {
           var ct = sortedTotals[index];
 
           return CategoryTotalRow(
-            name: ct.category,
+            category: ct.category,
             total: ct.currentSpend,
             target: ct.budget,
             onTapCallback: onTapCallback,
@@ -53,14 +54,15 @@ class CategoryTotalList extends StatelessWidget {
 }
 
 class CategoryTotalRow extends StatelessWidget {
-  final String name;
+  final FinanceCategory category;
   final double total;
   final double target;
-  final ValueChanged<String> onTapCallback;
+  final ValueChanged<FinanceCategory> onTapCallback;
   final DatePeriodType datePeriodType;
 
   const CategoryTotalRow(
-      {super.key, required this.name,
+      {super.key,
+      required this.category,
       required this.total,
       required this.target,
       required this.datePeriodType,
@@ -69,8 +71,11 @@ class CategoryTotalRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: IconHelper.getIconForCategory(name),
-      title: Text(name),
+      leading: IconHelper.getIconForCategory(category),
+      title: Text(
+        category.toDisplayString(),
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
       subtitle: Column(
         children: [
           Row(
@@ -88,26 +93,24 @@ class CategoryTotalRow extends StatelessWidget {
         ],
       ),
       onTap: () {
-        onTapCallback(name);
+        onTapCallback(category);
       },
     );
   }
 }
 
 class SpendProgress extends StatelessWidget {
-  const SpendProgress({
-    super.key,
-    required this.currentSpend,
-    required this.target,
-    required this.datePeriodType
-  });
+  const SpendProgress(
+      {super.key,
+      required this.currentSpend,
+      required this.target,
+      required this.datePeriodType});
 
   final double currentSpend;
   final double target;
   final DatePeriodType datePeriodType;
 
-  double _getAdjustedSpendTarget(double target)
-  {
+  double _getAdjustedSpendTarget(double target) {
     switch (datePeriodType) {
       case DatePeriodType.Weekly:
         return target;

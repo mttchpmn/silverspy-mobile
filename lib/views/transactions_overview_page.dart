@@ -6,6 +6,7 @@ import 'package:silverspy/components/atoms/full_width_button.dart';
 import 'package:silverspy/components/loading_spinner.dart';
 import 'package:silverspy/components/period_selector.dart';
 import 'package:silverspy/components/transaction_category_total_list.dart';
+import 'package:silverspy/constants/finance_category.dart';
 import 'package:silverspy/helpers/date_helper.dart';
 import 'package:silverspy/models/transaction_model.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
@@ -102,9 +103,9 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
   }
 
   void _handleCategorySelect(
-      TransactionResponse data, String categoryName, BuildContext context) {
+      TransactionResponse data, FinanceCategory categoryName, BuildContext context) {
     var transactions =
-        data.transactions.where((x) => x.category == categoryName).toList();
+        data.transactions.where((x) => FinanceCategoryExtensions.parse(x.category) == categoryName).toList();
     _showTransactionListPage(
         context, transactions, "${categoryName} Transactions");
   }

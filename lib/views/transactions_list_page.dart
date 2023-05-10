@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:silverspy/components/transaction_edit_dialog.dart';
+import 'package:silverspy/constants/finance_category.dart';
 import 'package:silverspy/models/transaction_response_model.dart';
 import 'package:silverspy/services/transaction_service.dart';
 
@@ -66,7 +67,7 @@ class _TransactionsListState extends State<TransactionsList> {
 
           return ListTile(
             leading:
-                IconHelper.getIconForCategory(transaction.category),
+                IconHelper.getIconForCategory(FinanceCategoryExtensions.parse(transaction.category)),
             title: Text(transaction.reference),
             subtitle: Text(DateFormat.yMMMMd('en_US').format(
                 DateTime.parse(transaction.transactionDate)

@@ -1,4 +1,5 @@
 
+import 'package:silverspy/constants/finance_category.dart';
 import 'package:silverspy/models/transaction_model.dart';
 
 class TransactionResponse{
@@ -19,7 +20,7 @@ class TransactionResponse{
 }
 
 class TransactionCategorySummary {
-  final String category;
+  final FinanceCategory category;
   final double currentSpend;
   final double budget; // Per week
 
@@ -27,7 +28,7 @@ class TransactionCategorySummary {
 
   factory TransactionCategorySummary.fromJson(Map<String, dynamic> json) {
     return TransactionCategorySummary(
-      category: json['category'],
+      category: FinanceCategoryExtensions.parse(json['category']),
       currentSpend: double.parse(json['currentSpend'].toString()),
       budget: double.parse(json['budget'].toString()),
     );
