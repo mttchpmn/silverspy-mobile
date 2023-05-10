@@ -102,10 +102,12 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     );
   }
 
-  void _handleCategorySelect(
-      TransactionResponse data, FinanceCategory categoryName, BuildContext context) {
-    var transactions =
-        data.transactions.where((x) => FinanceCategoryExtensions.parse(x.category) == categoryName).toList();
+  void _handleCategorySelect(TransactionResponse data,
+      FinanceCategory categoryName, BuildContext context) {
+    var transactions = data.transactions
+        .where(
+            (x) => FinanceCategoryExtensions.parse(x.category) == categoryName)
+        .toList();
     _showTransactionListPage(
         context, transactions, "${categoryName} Transactions");
   }
@@ -148,6 +150,23 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions Overview'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'sync') {
+                await _onSyncWithBankButtonPress(context);
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'sync',
+                  child: Text('Sync with Bank'),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -197,12 +216,6 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                           onPressed: () {
                             _showTransactionListPage(
                                 context, data.transactions, "All Transactions");
-                          }),
-                      FullWidthButton(
-                          buttonType: ButtonType.outlined,
-                          label: 'Sync with Bank',
-                          onPressed: () async {
-                            await _onSyncWithBankButtonPress(context);
                           }),
                     ],
                   ),
