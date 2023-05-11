@@ -31,76 +31,106 @@ class _LoginPageState extends State<LoginPage> {
         // appBar: AppBar(
         //   title: Text('Silverspy'),
         // ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        body: Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment(0.8, 1),
+          colors: <Color>[
+            Color(0xFFEF476F),
+            Color(0xFF6F2DBD),
+          ],
+          // Gradient from https://learnui.design/tools/gradient-generator.html
+          tileMode: TileMode.mirror,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Image(
+                        image: AssetImage('assets/logo-gold.png'),
+                        width: 175,
+                        height: 175,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Silverspy',
+                      // style: Theme.of(context).textTheme.headlineLarge,
+                      style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.w500),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Gain visibility into your finances',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      // style: Theme.of(context).textTheme.bodyMedium,
+                    )
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Image(
-                          image: AssetImage('assets/logo-circle.png'),
-                          width: 150,
-                          height: 150,
-                        ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF1B1B1E),
+                            minimumSize: const Size.fromHeight(50)),
+                        onPressed: () async {
+                          await auth.login();
+                        },
+                        child: Text("Sign in"),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              width: 1.0,
+                              color: Colors.white,
+                              style: BorderStyle.solid,
+                            ),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(50)),
+                        onPressed: () async {
+                          await auth.login();
+                        },
+                        child: Text("Sign up"),
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Silverspy',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 8,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Gain visibility into your finances',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        FullWidthButton(
-                            label: "Log in",
-                            onPressed: () async {
-                              await auth.login();
-                            }),
-                        SizedBox(height: 8),
-                        OutlinedButton(
-                          style: ElevatedButton.styleFrom(
-                              // backgroundColor: Colors.purple,
-                              minimumSize: const Size.fromHeight(50)),
-                          onPressed: () async {
-                            await auth.login();
-                          },
-                          child: Text("Sign up"),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ));
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    ));
   }
 }
