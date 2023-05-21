@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 enum FinanceCategory {
   uncategorized,
   rent,
@@ -28,6 +30,6 @@ extension FinanceCategoryExtensions on FinanceCategory {
   }
 
   static FinanceCategory parse(String input) {
-    return FinanceCategory.values.firstWhere((element) => element.name.toUpperCase() == input.toUpperCase());
+    return FinanceCategory.values.firstWhere((element) => element.name.toUpperCase() == input.toUpperCase().trim());
   }
 }
