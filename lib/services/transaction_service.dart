@@ -62,7 +62,7 @@ class TransactionService {
         "$apiUrl?from=${fromDate.toLocal().toIso8601String()}&to=${toDate.toLocal().toIso8601String()}";
 
     var headers = <String, String>{"Authorization": "Bearer $accessToken"};
-    debugPrint("Fetching transactions from $url");
+    debugPrint("Fetching transactions from ${fromDate.toIso8601String()} to ${toDate.toIso8601String()}");
     final response = await http.get(Uri.parse(url), headers: headers);
 
     if (response.statusCode == 200) {

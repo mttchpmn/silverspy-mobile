@@ -21,7 +21,10 @@ class DateHelper {
     var endOfWeek =
         reference.add(Duration(days: DateTime.daysPerWeek - reference.weekday));
 
-    return DatePeriod(startOfWeek, endOfWeek, DatePeriodType.Weekly);
+    var start = getStartOfDay(startOfWeek);
+    var end = getEndOfDay(endOfWeek);
+
+    return DatePeriod(start, end, DatePeriodType.Weekly);
   }
 
   static DatePeriod getFortnightPeriod() {
@@ -32,18 +35,32 @@ class DateHelper {
     var endOfWeek =
         reference.add(Duration(days: DateTime.daysPerWeek - reference.weekday));
 
-    return DatePeriod(startOfPeriod, endOfWeek, DatePeriodType.Fortnightly);
+    var start = getStartOfDay(startOfPeriod);
+    var end = getEndOfDay(endOfWeek);
+
+    return DatePeriod(start, end, DatePeriodType.Fortnightly);
   }
 
   static DatePeriod getMonthPeriod() {
     var now = DateTime.now().toLocal();
-    var startOfMonth = DateTime(now.year, now.month, 1);
-    var endOfMonth = DateTime(now.year, now.month + 1, 0);
+    var startOfMonth = getStartOfDay(DateTime(now.year, now.month, 1));
+    var endOfMonth = getEndOfDay(DateTime(now.year, now.month + 1, 0));
 
     debugPrint("Start: ${startOfMonth.toIso8601String()}");
     debugPrint("End: ${endOfMonth.toIso8601String()}");
 
     return DatePeriod(startOfMonth, endOfMonth, DatePeriodType.Monthly);
+  }
+
+  static DateTime getStartOfDay(DateTime ref) {
+    return DateTime(ref.year, ref.month, ref.day);
+  }
+
+  static DateTime getEndOfDay(DateTime ref) {
+    var startOfDay = DateTime(ref.year, ref.month, ref.day);
+    var endOfDay = startOfDay.add(const Duration(days: 1)).subtract(const Duration(milliseconds: 1));
+
+    return endOfDay;
   }
 
   static String getFormattedDate(DateTime date) =>
