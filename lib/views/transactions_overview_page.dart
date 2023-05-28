@@ -211,6 +211,7 @@ class _TransactionsOverviewPageState extends State<TransactionsOverviewPage> {
                           _handleCategorySelect(data, categoryName, context);
                         },
                       ),
+                      Text("Total spend: \$${data.transactions.fold(0.0, (prev, x) => prev + x.value).round()}"),
                       FullWidthButton(
                           label: 'View All Transactions',
                           onPressed: () {

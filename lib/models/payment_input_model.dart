@@ -6,6 +6,7 @@ class PaymentInput {
   final String category;
   final double value;
   final String? details;
+  final String? endDate;
 
   PaymentInput({
     required this.name,
@@ -15,6 +16,7 @@ class PaymentInput {
     required this.category,
     required this.value,
     this.details,
+    this.endDate
   });
 
   @override

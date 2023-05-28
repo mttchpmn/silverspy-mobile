@@ -60,6 +60,7 @@ class PaymentsService {
           'category': payment.category,
           'value': payment.value.toString(),
           'details': payment.details,
+          'endDate': payment.endDate
         }),
         headers: headers);
     if (response.statusCode != 200) {
